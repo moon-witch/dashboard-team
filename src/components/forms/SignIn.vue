@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { supabase } from "../supabase";
+import router from "../../router/index";
+import { supabase } from "../../supabase";
 
 const loading = ref(false);
 const email = ref("");
@@ -20,13 +21,14 @@ const handleLogin = async () => {
     }
   } finally {
     loading.value = false;
+    router.push("/news");
   }
 };
 </script>
 
 <template>
   <div
-    class="flex h-screen w-full items-center justify-center bg-gray-900 bg-cover bg-no-repeat"
+    class="flex h-screen w-full items-center justify-center bg-transparent bg-cover bg-no-repeat"
   >
     <div
       class="rounded-xl bg-gray-800 bg-opacity-50 px-16 py-10 shadow-lg backdrop-blur-md max-sm:px-8"

@@ -3,13 +3,11 @@ import { supabase } from "../supabase";
 import { onMounted, ref, toRefs } from "vue";
 import Avatar from "../components/ProfilePic.vue";
 
-const props = defineProps(["session"]);
-const { session } = toRefs(props);
-
 const loading = ref(true);
 const username = ref("");
 const website = ref("");
 const avatar_url = ref("");
+const email = ref("");
 
 onMounted(() => {
   getProfile();
@@ -18,7 +16,9 @@ onMounted(() => {
 async function getProfile() {
   try {
     loading.value = true;
-    const { user } = session.value;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     let { data, error, status } = await supabase
       .from("profiles")
@@ -29,6 +29,7 @@ async function getProfile() {
     if (error && status !== 406) throw error;
 
     if (data) {
+      email.value = user.email;
       username.value = data.username;
       website.value = data.website;
       avatar_url.value = data.avatar_url;
@@ -43,7 +44,9 @@ async function getProfile() {
 async function updateProfile() {
   try {
     loading.value = true;
-    const { user } = session.value;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     const updates = {
       id: user.id,
@@ -62,57 +65,39 @@ async function updateProfile() {
     loading.value = false;
   }
 }
-
-async function signOut() {
-  try {
-    loading.value = true;
-    let { error } = await supabase.auth.signOut();
-    if (error) throw error;
-  } catch (error) {
-    alert(error.message);
-  } finally {
-    loading.value = false;
-  }
-}
 </script>
 
 <template>
   <div
-    class="flex h-screen w-full items-center justify-center bg-gray-900 bg-cover bg-no-repeat"
+    class="flex w-full items-center justify-center bg-transparent bg-cover bg-no-repeat"
   >
     <div
-      class="rounded-xl bg-gray-800 bg-opacity-50 px-16 py-10 shadow-lg backdrop-blur-md max-sm:px-8"
+      class="rounded-xl bg-emerald-900/50 bg-opacity-50 px-12 py-10 mt-2 shadow-lg max-sm:px-8"
     >
       <div class="text-white">
-        <div>
-          <button
-            type="submit"
-            class="text-white bg-emerald-800 hover:bg-teal-800 focus:ring-4 focus:ring-emerald-400 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center my-6"
-            @click="signOut"
-          >
-            logout
-          </button>
+        <div class="text-center text-lg text-emerald-400 pb-8">
+          edit profile
         </div>
-        <hr />
         <div class="flex justify-center">
           <div
-            class="text-white bg-transparent focus:ring-4 focus:ring-emerald-400 font-medium rounded-lg text-sm w-full sm:w-auto text-center my-6"
+            class="text-white bg-transparent focus:ring-4 focus:ring-emerald-400 font-medium text-sm w-full sm:w-auto text-center mt-4 mb-12 ml-16 md:ml-0"
           >
             <Avatar
               v-model:path="avatar_url"
               @upload="updateProfile"
-              size="13"
+              size="16"
+              showUpload="true"
             />
           </div>
         </div>
         <form @submit.prevent="updateProfile">
-          <div class="relative z-0 mb-6 w-full group">
+          <div class="relative z-0 mb-6 px-24 w-full group">
             <input
-              type="email"
+              type="text"
               name="floating_email"
-              :value="session.user.email"
+              :value="email"
               disabled
-              class="block py-2.5 px-0 w-full text-sm bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-emerald-400 peer"
+              class="block py-2.5 px-0 w-full text-sm bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-emerald-400 peer"
               placeholder=" "
               required
             />
@@ -215,12 +200,14 @@ async function signOut() {
               >portfolio</label
             >
           </div>
-          <button
-            type="submit"
-            class="text-white bg-emerald-800 hover:bg-teal-800 focus:ring-4 focus:ring-emerald-400 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
-          >
-            update profile
-          </button>
+          <div class="text-center mt-12">
+            <button
+              type="submit"
+              class="text-white bg-emerald-800 hover:bg-teal-800 focus:ring-4 focus:ring-emerald-400 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+            >
+              update profile
+            </button>
+          </div>
         </form>
       </div>
     </div>
