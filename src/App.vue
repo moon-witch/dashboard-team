@@ -1,6 +1,20 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 import Nav from "./components/Nav.vue";
+import { onMounted, ref } from "vue";
+import { supabase } from "./supabase";
+
+const session = ref();
+
+onMounted(() => {
+  supabase.auth.getSession().then(({ data }) => {
+    session.value = data.session;
+  });
+
+  supabase.auth.onAuthStateChange((_, _session) => {
+    session.value = _session;
+  });
+});
 </script>
 
 <template>
@@ -8,7 +22,7 @@ import Nav from "./components/Nav.vue";
     <div v-if="$route.path != '/'">
       <Nav />
     </div>
-    <RouterView />
+    <RouterView :session="session"/>
   </div>
 </template>
 

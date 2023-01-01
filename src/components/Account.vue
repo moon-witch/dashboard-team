@@ -3,6 +3,9 @@ import { supabase } from "../supabase";
 import { onMounted, ref, toRefs } from "vue";
 import Avatar from "../components/ProfilePic.vue";
 
+const props = defineProps(['session'])
+const { session } = toRefs(props)
+
 const loading = ref(true);
 const username = ref("");
 const website = ref("");
@@ -16,9 +19,8 @@ onMounted(() => {
 async function getProfile() {
   try {
     loading.value = true;
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user } = session.value
+    console.log(user)
 
     let { data, error, status } = await supabase
       .from("profiles")

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { anyTypeAnnotation } from "@babel/types";
 import { ref, toRefs, watch } from "vue";
 import { supabase } from "../supabase";
 
